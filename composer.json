@@ -2,6 +2,9 @@
     "name": "martiis/bitbucket-cli",
     "description": "Command line tool for bitbucket",
     "type": "project",
+    "autoload": {
+        "psr-4": { "Martiis\\BitbucketCli\\": "src/" }
+    },
     "require": {
         "symfony/console": "^3.3",
         "symfony/dependency-injection": "^3.3",
