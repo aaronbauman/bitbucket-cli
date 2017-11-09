@@ -26,7 +26,7 @@ $container->addCompilerPass(new class implements CompilerPassInterface {
     }
 });
 
-$container->loadFromExtension('martiis_bitbucket_cli');
+$container->loadFromExtension(Extension::class);
 $container->compile();
 
 $container->get(Application::class)->run();

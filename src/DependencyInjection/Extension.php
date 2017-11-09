@@ -25,6 +25,6 @@ class Extension extends BaseExtension
      */
     public function getAlias()
     {
-        return 'martiis_bitbucket_cli';
+        return static::class;
     }
 }
