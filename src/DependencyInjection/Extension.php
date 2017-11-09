@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Martiis\BitbucketCli\DependencyInjection;
 
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension as BaseExtension;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class Extension extends BaseExtension
 {
@@ -14,6 +16,15 @@ class Extension extends BaseExtension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        // TODO: Implement load() method.
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('services.yml');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlias()
+    {
+        return 'martiis_bitbucket_cli';
     }
 }
