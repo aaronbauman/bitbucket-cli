@@ -74,5 +74,4 @@ class AccessTokenFactory
             $accessToken->getExpires() - time()
         );
     }
-
 }
