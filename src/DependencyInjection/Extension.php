@@ -17,6 +17,10 @@ class Extension extends BaseExtension
     public function load(array $configs, ContainerBuilder $container)
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('../../../parameters.yml');
+        $loader->load('cache.yml');
+        $loader->load('oauth2.yml');
+        $loader->load('guzzle.yml');
         $loader->load('services.yml');
     }
 

@@ -1,0 +1,17 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    GuzzleHttp\Client:
+        arguments:
+            -
+                handler: '@GuzzleHttp\HandlerStack'
+                base_uri: '%bitbucket_api%'
+                timeout: 20
+
+    GuzzleHttp\HandlerStack:
+        factory: ['GuzzleHttp\HandlerStack', 'create']
+        calls:
+            - [push, ['@Martiis\BitbucketCli\Security\Guzzle\BearerMiddleware']]

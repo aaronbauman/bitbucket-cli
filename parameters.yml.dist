@@ -1,3 +1,5 @@
 parameters:
     key: ~
     secret: ~
+    redirect_uri: 'http://bitbucket.cli'
+    bitbucket_api: 'https://api.bitbucket.org/2.0'

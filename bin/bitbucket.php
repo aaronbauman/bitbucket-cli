@@ -14,6 +14,7 @@ $container = new ContainerBuilder();
 $container
     ->register(Application::class, Application::class)
     ->setArguments(['Bitbucket command line tool', '0.1']);
+$container->setParameter('cache_dir', __DIR__ . '/../var/cache');
 $container->registerExtension(new Extension());
 $container->addCompilerPass(new class implements CompilerPassInterface {
     public function process(ContainerBuilder $container)

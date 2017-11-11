@@ -1,0 +1,17 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    League\OAuth2\Client\Provider\GenericProvider:
+        -
+            clientId: '%key%'
+            clientSecret: '%secret%'
+            redirectUri: '%redirect_uri%'
+            urlAuthorize: 'https://bitbucket.org/site/oauth2/authorize'
+            urlAccessToken: 'https://bitbucket.org/site/oauth2/access_token'
+            urlResourceOwnerDetails: '%bitbucket_api%/user'
+
+    League\OAuth2\Client\Token\AccessToken:
+        factory: 'Martiis\BitbucketCli\Security\AccessTokenFactory:getAccessToken'

@@ -1,0 +1,11 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    Doctrine\Common\Cache\CacheProvider: '@Doctrine\Common\Cache\FilesystemCache'
+
+    Doctrine\Common\Cache\FilesystemCache:
+        arguments:
+            - '%cache_dir%'
