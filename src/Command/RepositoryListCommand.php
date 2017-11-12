@@ -68,7 +68,23 @@ class RepositoryListCommand extends Command
             ]
         );
 
+        [$headers, $rows] = $this->extractTableFromResponse($response);
+        $io = new SymfonyStyle($input, $output);
+        $io->title('Repository list');
+        $io->table($headers, $rows);
+        $io->comment($this->formatComment($response));
+    }
+
+    /**
+     * @param array $response
+     *
+     * @return array
+     */
+    private function extractTableFromResponse(array $response)
+    {
+        $tableHeaders = ['Uuid', 'Name', 'Slug', 'Type'];
         $tableRows = [];
+
         foreach ($response['values'] as $repository) {
             $tableRows[] = [
                 $repository['uuid'],
@@ -78,9 +94,6 @@ class RepositoryListCommand extends Command
             ];
         }
 
-        $io = new SymfonyStyle($input, $output);
-        $io->title('Repository list');
-        $io->table(['Uuid', 'Name', 'Slug', 'Type'], $tableRows);
-        $io->comment($this->formatComment($response));
+        return [$tableHeaders, $tableRows];
     }
 }

@@ -39,7 +39,7 @@ trait ClientAwareTrait
      *
      * @return array
      */
-    public function requestGetJson(string $uri, array $options): array
+    public function requestGetJson(string $uri, array $options = []): array
     {
         return $this->getJsonDecoder()->decode(
             $this->client->get($uri, $options)->getBody()->getContents()
