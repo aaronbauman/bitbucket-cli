@@ -79,6 +79,21 @@ class PullRequestListCommand extends Command
             dump($response);
         }
 
+        [$headers, $rows] = $this->extractTableFromResponse($input, $response);
+        $io = new SymfonyStyle($input, $output);
+        $io->title('Pull requests');
+        $io->table($headers, $rows);
+        $io->comment($this->formatComment($response));
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param array          $response
+     *
+     * @return array
+     */
+    private function extractTableFromResponse(InputInterface $input, array $response)
+    {
         $tableHeaders = ['Id', 'Title', 'Author', 'State'];
         $tableRows = [];
 
@@ -101,9 +116,6 @@ class PullRequestListCommand extends Command
             $tableRows[] = $row;
         }
 
-        $io = new SymfonyStyle($input, $output);
-        $io->title('Pull requests');
-        $io->table($tableHeaders, $tableRows);
-        $io->comment($this->formatComment($response));
+        return [$tableHeaders, $tableRows];
     }
 }
