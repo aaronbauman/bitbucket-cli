@@ -36,6 +36,9 @@
             "@handle-parameters"
         ]
     },
+    "config": {
+        "bin-dir": "bin"
+    },
     "extra": {
         "incenteev-parameters": {
             "file": "parameters.yml"
