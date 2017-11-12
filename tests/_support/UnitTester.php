@@ -1,5 +1,5 @@
 <?php
-
+namespace Martiis\BitbucketCli\Test;
 
 /**
  * Inherited Methods

@@ -6,6 +6,9 @@
         "psr-4": { "Martiis\\BitbucketCli\\": "src/" }
     },
     "autoload-dev": {
+        "psr-4": {
+            "Martiis\\BitbucketCli\\Test\\Unit\\": "tests/unit/"
+        },
         "files": [ "vendor/symfony/var-dumper/Resources/functions/dump.php" ]
     },
     "require": {
@@ -35,9 +38,6 @@
         "post-update-cmd": [
             "@handle-parameters"
         ]
-    },
-    "config": {
-        "bin-dir": "bin"
     },
     "extra": {
         "incenteev-parameters": {
