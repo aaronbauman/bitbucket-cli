@@ -61,7 +61,7 @@ class PullRequestListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = json_decode($this->client->get(
+        $response = $this->requestGetJson(
             str_replace(
                 ['{username}', '{repo_slug}'],
                 [
@@ -73,7 +73,7 @@ class PullRequestListCommand extends Command
             ['query' => [
                 'page' => (int) $input->getOption('page'),
             ]]
-        )->getBody()->getContents(), true);
+        );
 
         if ($output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE) {
             dump($response);

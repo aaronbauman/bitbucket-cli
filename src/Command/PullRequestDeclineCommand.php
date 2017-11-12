@@ -6,6 +6,10 @@ namespace Martiis\BitbucketCli\Command;
 
 use Symfony\Component\Console\Command\Command;
 
+/**
+ * Class PullRequestDeclineCommand
+ * @package Martiis\BitbucketCli\Command
+ */
 class PullRequestDeclineCommand extends Command
 {
     /**

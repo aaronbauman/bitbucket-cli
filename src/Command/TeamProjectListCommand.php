@@ -44,7 +44,7 @@ class TeamProjectListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = json_decode($this->client->get(
+        $response = $this->requestGetJson(
             str_replace(
                 '{owner}',
                 $input->getArgument('owner'),
@@ -55,7 +55,7 @@ class TeamProjectListCommand extends Command
                     'page' => $input->getOption('page'),
                 ],
             ]
-        )->getBody()->getContents(), true);
+        );
         $tableRows = [];
         foreach ($response['values'] as $project) {
             $tableRows[] = [

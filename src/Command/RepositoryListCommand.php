@@ -15,6 +15,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Class RepositoryListCommand
+ * @package Martiis\BitbucketCli\Command
+ */
 class RepositoryListCommand extends Command
 {
     use ClientAwareTrait,
@@ -49,18 +53,20 @@ class RepositoryListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = json_decode($this->client->get(
+        $response = $this->requestGetJson(
             str_replace(
                 '{username}',
                 $input->getArgument('username'),
                 '/2.0/repositories/{username}'
             ),
-            ['query' => [
-                'page' => (int) $input->getOption('page'),
-                'role' => (string) $input->getOption('role'),
-                'q' => (string) $input->getOption('query'),
-            ]]
-        )->getBody()->getContents(), true);
+            [
+                'query' => [
+                    'page' => (int) $input->getOption('page'),
+                    'role' => (string) $input->getOption('role'),
+                    'q' => (string) $input->getOption('query'),
+                ]
+            ]
+        );
 
         $tableRows = [];
         foreach ($response['values'] as $repository) {

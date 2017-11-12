@@ -44,14 +44,15 @@ class TeamListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = json_decode($this->client->get(
+        $response = $this->requestGetJson(
             '/2.0/teams',
-            ['query' => [
-                'role' => $input->getArgument('role'),
-                'page' => (int) $input->getOption('page'),
-            ]]
-        )->getBody()->getContents(), true);
-
+            [
+                'query' => [
+                    'role' => $input->getArgument('role'),
+                    'page' => (int) $input->getOption('page'),
+                ]
+            ]
+        );
         $tableRows = [];
         foreach ($response['values'] as $team) {
             $tableRows[] = [$team['uuid'], $team['username'], $team['display_name'], $team['type']];

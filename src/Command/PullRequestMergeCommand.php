@@ -6,6 +6,10 @@ namespace Martiis\BitbucketCli\Command;
 
 use Symfony\Component\Console\Command\Command;
 
+/**
+ * Class PullRequestMergeCommand
+ * @package Martiis\BitbucketCli\Command
+ */
 class PullRequestMergeCommand extends Command
 {
     /**
