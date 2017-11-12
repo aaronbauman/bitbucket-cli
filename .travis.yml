@@ -11,7 +11,7 @@ before_script:
     - ./cc-test-reporter before-build
 
 script:
-    - vendor/bin/codecept run
+    - vendor/bin/codecept run --coverage --coverage-xml
 
 after_script:
     - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
