@@ -22,6 +22,10 @@ class PullRequestListCommand extends Command
 {
     use ClientAwareTrait, PageAwareCommandTrait, CommentFormatterTrait;
 
+    private const ARGUMENT_USERNAME = 'username';
+    private const ARGUMENT_REPO_SLUG = 'repo_slug';
+    private const OPTION_WITH_LINKS = 'with-links';
+
     /**
      * {@inheritdoc}
      */
@@ -31,19 +35,19 @@ class PullRequestListCommand extends Command
             ->setName('pull-request:list')
             ->setDescription('List of all pull requests on the specified repository.')
             ->addArgument(
-                'username',
+                self::ARGUMENT_USERNAME,
                 InputArgument::REQUIRED,
                 'This can either be the username or the UUID of the user, '
                 . 'surrounded by curly-braces, for example: {user UUID}.'
             )
             ->addArgument(
-                'repo_slug',
+                self::ARGUMENT_REPO_SLUG,
                 InputArgument::REQUIRED,
                 '	This can either be the repository slug or the UUID of the '
                 . 'repository, surrounded by curly-braces, for example: {repository UUID}.'
             )
             ->addOption(
-                'with-links',
+                self::OPTION_WITH_LINKS,
                 'l',
                 InputOption::VALUE_NONE,
                 'Includes link table'
@@ -60,7 +64,10 @@ class PullRequestListCommand extends Command
         $response = json_decode($this->client->get(
             str_replace(
                 ['{username}', '{repo_slug}'],
-                [$input->getArgument('username'), $input->getArgument('repo_slug')],
+                [
+                    $input->getArgument(self::ARGUMENT_USERNAME),
+                    $input->getArgument(self::ARGUMENT_REPO_SLUG)
+                ],
                 '/2.0/repositories/{username}/{repo_slug}/pullrequests'
             ),
             ['query' => [
@@ -75,7 +82,7 @@ class PullRequestListCommand extends Command
         $tableHeaders = ['Id', 'Title', 'Author', 'State'];
         $tableRows = [];
 
-        if ($input->getOption('with-links')) {
+        if ($input->getOption(self::OPTION_WITH_LINKS)) {
             $tableHeaders[] = 'Link';
         }
 
@@ -87,7 +94,7 @@ class PullRequestListCommand extends Command
                 $pullRequest['state'],
             ];
 
-            if ($input->getOption('with-links')) {
+            if ($input->getOption(self::OPTION_WITH_LINKS)) {
                 $row[] = $pullRequest['links']['html']['href'];
             }
 
