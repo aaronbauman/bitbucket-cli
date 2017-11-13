@@ -51,11 +51,11 @@ trait ClientAwareTrait
      */
     protected function getJsonDecoder()
     {
-        if (!static::$decoder) {
-            static::$decoder = new JsonDecoder();
-            static::$decoder->setObjectDecoding(JsonDecoder::ASSOC_ARRAY);
+        if (!self::$decoder) {
+            self::$decoder = new JsonDecoder();
+            self::$decoder->setObjectDecoding(JsonDecoder::ASSOC_ARRAY);
         }
 
-        return static::$decoder;
+        return self::$decoder;
     }
 }

@@ -7,6 +7,7 @@ namespace Martiis\BitbucketCli\Command;
 use Martiis\BitbucketCli\Command\Traits\ClientAwareTrait;
 use Martiis\BitbucketCli\Command\Traits\CommentFormatterTrait;
 use Martiis\BitbucketCli\Command\Traits\PageAwareCommandTrait;
+use Martiis\BitbucketCli\Command\Traits\QueryAwareCommandTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,11 +21,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class PullRequestListCommand extends Command
 {
-    use ClientAwareTrait, PageAwareCommandTrait, CommentFormatterTrait;
+    use ClientAwareTrait,
+        PageAwareCommandTrait,
+        QueryAwareCommandTrait,
+        CommentFormatterTrait;
 
-    private const ARGUMENT_USERNAME = 'username';
-    private const ARGUMENT_REPO_SLUG = 'repo_slug';
-    private const OPTION_WITH_LINKS = 'with-links';
+    protected const ARGUMENT_USERNAME = 'username';
+    protected const ARGUMENT_REPO_SLUG = 'repo_slug';
+    protected const OPTION_WITH_LINKS = 'with-links';
 
     /**
      * {@inheritdoc}
@@ -53,7 +57,9 @@ class PullRequestListCommand extends Command
                 'Includes link table'
             );
 
-        $this->configurePageOption($this);
+        $this
+            ->configurePageOption($this)
+            ->configureQueryOption($this);
     }
 
     /**
@@ -61,29 +67,48 @@ class PullRequestListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->requestGetJson(
-            str_replace(
-                ['{username}', '{repo_slug}'],
-                [
-                    $input->getArgument(self::ARGUMENT_USERNAME),
-                    $input->getArgument(self::ARGUMENT_REPO_SLUG)
-                ],
-                '/2.0/repositories/{username}/{repo_slug}/pullrequests'
-            ),
-            ['query' => [
-                'page' => (int) $input->getOption('page'),
-            ]]
+        $response = $this->requestPullRequestList(
+            array_merge($input->getArguments(), $input->getOptions()),
+            $output->getVerbosity()
         );
-
-        if ($output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE) {
-            dump($response);
-        }
-
         [$headers, $rows] = $this->extractTableFromResponse($input, $response);
+
         $io = new SymfonyStyle($input, $output);
         $io->title('Pull requests');
         $io->table($headers, $rows);
         $io->comment($this->formatComment($response));
+    }
+
+    /**
+     * @param array $parameters
+     * @param int   $verbosity
+     *
+     * @return array
+     */
+    protected function requestPullRequestList(array $parameters, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    {
+        $response =  $this->requestGetJson(
+            str_replace(
+                ['{username}', '{repo_slug}'],
+                [
+                    $parameters[self::ARGUMENT_USERNAME],
+                    $parameters[self::ARGUMENT_REPO_SLUG]
+                ],
+                '/2.0/repositories/{username}/{repo_slug}/pullrequests'
+            ),
+            [
+                'query' => [
+                    'q' => $parameters['query'],
+                    'page' => $parameters['page'] ?? 1,
+                ],
+            ]
+        );
+
+        if ($verbosity === OutputInterface::VERBOSITY_VERBOSE) {
+            dump($response);
+        }
+
+        return $response;
     }
 
     /**

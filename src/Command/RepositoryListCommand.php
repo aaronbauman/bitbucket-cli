@@ -53,7 +53,23 @@ class RepositoryListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->requestGetJson(
+        $response = $this->requestRepositoryList($input);
+        [$headers, $rows] = $this->extractTableFromResponse($response);
+
+        $io = new SymfonyStyle($input, $output);
+        $io->title('Repository list');
+        $io->table($headers, $rows);
+        $io->comment($this->formatComment($response));
+    }
+
+    /**
+     * @param InputInterface $input
+     *
+     * @return array
+     */
+    protected function requestRepositoryList(InputInterface $input)
+    {
+        return $this->requestGetJson(
             str_replace(
                 '{username}',
                 $input->getArgument('username'),
@@ -67,12 +83,6 @@ class RepositoryListCommand extends Command
                 ]
             ]
         );
-
-        [$headers, $rows] = $this->extractTableFromResponse($response);
-        $io = new SymfonyStyle($input, $output);
-        $io->title('Repository list');
-        $io->table($headers, $rows);
-        $io->comment($this->formatComment($response));
     }
 
     /**
