@@ -7,9 +7,6 @@ use League\OAuth2\Client\Token\AccessToken;
 use Martiis\BitbucketCli\Security\Guzzle\BearerMiddleware;
 use Psr\Http\Message\RequestInterface;
 
-/**
- * {@inheritdoc}
- */
 class BearerMiddlewareTest extends Unit
 {
     /**
