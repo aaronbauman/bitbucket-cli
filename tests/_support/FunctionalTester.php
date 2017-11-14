@@ -1,5 +1,8 @@
 <?php
+
 namespace Martiis\BitbucketCli\Test;
+
+use Codeception\Actor;
 
 /**
  * Inherited Methods
@@ -16,7 +19,7 @@ namespace Martiis\BitbucketCli\Test;
  *
  * @SuppressWarnings(PHPMD)
 */
-class UnitTester extends \Codeception\Actor
+class FunctionalTester extends Actor
 {
-    use _generated\UnitTesterActions;
+    use _generated\FunctionalTesterActions;
 }
