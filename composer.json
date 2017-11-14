@@ -29,6 +29,9 @@
         "symfony/var-dumper": "^3.3",
         "codeception/codeception": "^2.3"
     },
+    "bin": [
+        "bin/bitbucket"
+    ],
     "scripts": {
         "handle-parameters": [
             "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
