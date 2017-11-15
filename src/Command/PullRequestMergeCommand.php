@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Martiis\BitbucketCli\Command;
 
+use Martiis\BitbucketCli\Command\Traits\ClientAwareTrait;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,8 +15,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Class PullRequestMergeCommand
  * @package Martiis\BitbucketCli\Command
  */
-class PullRequestMergeCommand extends PullRequestListCommand
+class PullRequestMergeCommand extends Command
 {
+    use ClientAwareTrait;
+
+    protected const ARGUMENT_USERNAME = 'username';
+    protected const ARGUMENT_REPO_SLUG = 'repo_slug';
     protected const ARGUMENT_PULL_REQUEST_ID = 'pull-request_id';
 
     /**
@@ -49,18 +55,37 @@ class PullRequestMergeCommand extends PullRequestListCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->requestPullRequestList(
-            array_merge($input->getArguments(), [
-                'query' => sprintf('id=%s', $input->getArgument(self::ARGUMENT_PULL_REQUEST_ID)),
-            ]),
-            $output->getVerbosity()
+        $response = $this->requestPullRequest($input->getArguments(), $output->getVerbosity());
+        $io = new SymfonyStyle($input, $output);
+        $io->comment(sprintf('Merging "<comment>%s</comment>" ..', $response['title']));
+        $this->client->post($response['links']['merge']['href']);
+        $io->comment('<info>Done</info>');
+    }
+
+    /**
+     * @param array $parameters
+     * @param int   $verbosity
+     *
+     * @return array
+     */
+    protected function requestPullRequest(array $parameters, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    {
+        $response =  $this->requestGetJson(
+            str_replace(
+                ['{username}', '{repo_slug}', '{pull_request_id}'],
+                [
+                    $parameters[self::ARGUMENT_USERNAME],
+                    $parameters[self::ARGUMENT_REPO_SLUG],
+                    $parameters[self::ARGUMENT_PULL_REQUEST_ID],
+                ],
+                '/2.0/repositories/{username}/{repo_slug}/pullrequests/{pull_request_id}'
+            )
         );
 
-        $pr = array_shift($response['values']);
+        if ($verbosity === OutputInterface::VERBOSITY_VERBOSE) {
+            dump($response);
+        }
 
-        $io = new SymfonyStyle($input, $output);
-        $io->comment(sprintf('Merging "<comment>%s</comment>" ..', $pr['title']));
-        $this->client->post($pr['links']['merge']['href']);
-        $io->comment('<info>Done</info>');
+        return $response;
     }
 }
