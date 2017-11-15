@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Martiis\BitbucketCli\Command;
 
+use Martiis\BitbucketCli\Client\BitbucketClientInterface;
 use Martiis\BitbucketCli\Command\Traits\ClientAwareTrait;
 use Martiis\BitbucketCli\Command\Traits\CommentFormatterTrait;
 use Martiis\BitbucketCli\Command\Traits\PageAwareCommandTrait;
@@ -19,7 +20,23 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class TeamListCommand extends Command
 {
-    use ClientAwareTrait, CommentFormatterTrait, PageAwareCommandTrait;
+    use CommentFormatterTrait, PageAwareCommandTrait;
+
+    /**
+     * @var BitbucketClientInterface
+     */
+    private $bitbucketClient;
+
+    /**
+     * TeamListCommand constructor.
+     * @param BitbucketClientInterface $bitbucketClient
+     */
+    public function __construct(BitbucketClientInterface $bitbucketClient)
+    {
+        parent::__construct();
+
+        $this->bitbucketClient = $bitbucketClient;
+    }
 
     /**
      * {@inheritdoc}
@@ -44,15 +61,11 @@ class TeamListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->requestGetJson(
-            '/2.0/teams',
-            [
-                'query' => [
-                    'role' => $input->getArgument('role'),
-                    'page' => (int) $input->getOption('page'),
-                ]
-            ]
+        $response = $this->bitbucketClient->getTeamList(
+            $input->getArgument('role'),
+            ['page' => $input->getOption('page')]
         );
+
         $tableRows = [];
         foreach ($response['values'] as $team) {
             $tableRows[] = [$team['uuid'], $team['username'], $team['display_name'], $team['type']];
