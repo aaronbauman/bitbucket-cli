@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Martiis\BitbucketCli\Command;
 
 use Martiis\BitbucketCli\Client\BitbucketClientInterface;
-use Martiis\BitbucketCli\Command\Traits\ClientAwareTrait;
 use Martiis\BitbucketCli\Command\Traits\CommentFormatterTrait;
 use Martiis\BitbucketCli\Command\Traits\PageAwareCommandTrait;
 use Symfony\Component\Console\Command\Command;
