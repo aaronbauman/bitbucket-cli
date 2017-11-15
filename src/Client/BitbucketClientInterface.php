@@ -47,25 +47,5 @@ interface BitbucketClientInterface
      *
      * @return array
      */
-    public function mergePullRequest(string $username, string $repoSlug, int $pullRequestId, array $options = []);
-
-    /**
-     * @param string $username
-     * @param string $repoSlug
-     * @param int    $pullRequestId
-     * @param array  $options
-     *
-     * @return array
-     */
-    public function approvePullRequest(string $username, string $repoSlug, int $pullRequestId, array $options = []);
-
-    /**
-     * @param string $username
-     * @param string $repoSlug
-     * @param int    $pullRequestId
-     * @param array  $options
-     *
-     * @return array
-     */
-    public function declinePullRequest(string $username, string $repoSlug, int $pullRequestId, array $options = []);
+    public function getPullRequest(string $username, string $repoSlug, int $pullRequestId, array $options = []);
 }
