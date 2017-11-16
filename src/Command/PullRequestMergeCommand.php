@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Martiis\BitbucketCli\Command;
 
-use Martiis\BitbucketCli\Command\Traits\ClientAwareTrait;
+use GuzzleHttp\ClientInterface;
+use Martiis\BitbucketCli\Client\BitbucketClientInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,11 +18,33 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class PullRequestMergeCommand extends Command
 {
-    use ClientAwareTrait;
-
     protected const ARGUMENT_USERNAME = 'username';
     protected const ARGUMENT_REPO_SLUG = 'repo_slug';
     protected const ARGUMENT_PULL_REQUEST_ID = 'pull-request_id';
+
+    /**
+     * @var BitbucketClientInterface
+     */
+    protected $bitbucketClient;
+
+    /**
+     * @var ClientInterface
+     */
+    protected $httpClient;
+
+    /**
+     * PullRequestMergeCommand constructor.
+     *
+     * @param BitbucketClientInterface $bitbucketClient
+     * @param ClientInterface $client
+     */
+    public function __construct(BitbucketClientInterface $bitbucketClient, ClientInterface $httpClient)
+    {
+        parent::__construct();
+
+        $this->bitbucketClient = $bitbucketClient;
+        $this->httpClient = $httpClient;
+    }
 
     /**
      * {@inheritdoc}
@@ -55,37 +78,15 @@ class PullRequestMergeCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->requestPullRequest($input->getArguments(), $output->getVerbosity());
-        $io = new SymfonyStyle($input, $output);
-        $io->comment(sprintf('Merging "<comment>%s</comment>" ..', $response['title']));
-        $this->client->post($response['links']['merge']['href']);
-        $io->comment('<info>Done</info>');
-    }
-
-    /**
-     * @param array $parameters
-     * @param int   $verbosity
-     *
-     * @return array
-     */
-    protected function requestPullRequest(array $parameters, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
-    {
-        $response =  $this->requestGetJson(
-            str_replace(
-                ['{username}', '{repo_slug}', '{pull_request_id}'],
-                [
-                    $parameters[self::ARGUMENT_USERNAME],
-                    $parameters[self::ARGUMENT_REPO_SLUG],
-                    $parameters[self::ARGUMENT_PULL_REQUEST_ID],
-                ],
-                '/2.0/repositories/{username}/{repo_slug}/pullrequests/{pull_request_id}'
-            )
+        $response = $this->bitbucketClient->getPullRequest(
+            $input->getArgument(self::ARGUMENT_USERNAME),
+            $input->getArgument(self::ARGUMENT_REPO_SLUG),
+            $input->getArgument(self::ARGUMENT_PULL_REQUEST_ID)
         );
 
-        if ($verbosity === OutputInterface::VERBOSITY_VERBOSE) {
-            dump($response);
-        }
-
-        return $response;
+        $io = new SymfonyStyle($input, $output);
+        $io->comment(sprintf('Merging "<comment>%s</comment>" ..', $response['title']));
+        $this->httpClient->request('POST', $response['links']['merge']['href']);
+        $io->comment('<info>Done</info>');
     }
 }

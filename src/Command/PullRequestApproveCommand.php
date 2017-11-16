@@ -31,10 +31,15 @@ class PullRequestApproveCommand extends PullRequestMergeCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->requestPullRequest($input->getArguments(), $output->getVerbosity());
+        $response = $this->bitbucketClient->getPullRequest(
+            $input->getArgument(self::ARGUMENT_USERNAME),
+            $input->getArgument(self::ARGUMENT_REPO_SLUG),
+            $input->getArgument(self::ARGUMENT_PULL_REQUEST_ID)
+        );
+
         $io = new SymfonyStyle($input, $output);
         $io->comment(sprintf('Approving "<comment>%s</comment>" ..', $response['title']));
-        $this->client->post($response['links']['approve']['href']);
+        $this->httpClient->request('POST', $response['links']['approve']['href']);
         $io->comment('<info>Done</info>');
     }
 }
