@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Martiis\BitbucketCli\Command;
 
+use Martiis\BitbucketCli\Client\BitbucketClientInterface;
 use Martiis\BitbucketCli\Command\Traits\ClientAwareTrait;
 use Martiis\BitbucketCli\Command\Traits\CommentFormatterTrait;
 use Martiis\BitbucketCli\Command\Traits\PageAwareCommandTrait;
@@ -21,14 +22,29 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class PullRequestListCommand extends Command
 {
-    use ClientAwareTrait,
-        PageAwareCommandTrait,
+    use PageAwareCommandTrait,
         QueryAwareCommandTrait,
         CommentFormatterTrait;
 
     protected const ARGUMENT_USERNAME = 'username';
     protected const ARGUMENT_REPO_SLUG = 'repo_slug';
     protected const OPTION_WITH_LINKS = 'with-links';
+
+    /**
+     * @var BitbucketClientInterface
+     */
+    private $bitbucketClient;
+
+    /**
+     * PullRequestListCommand constructor.
+     * @param BitbucketClientInterface $bitbucketClient
+     */
+    public function __construct(BitbucketClientInterface $bitbucketClient)
+    {
+        parent::__construct();
+
+        $this->bitbucketClient = $bitbucketClient;
+    }
 
     /**
      * {@inheritdoc}
@@ -67,11 +83,18 @@ class PullRequestListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->requestPullRequestList(
-            array_merge($input->getArguments(), $input->getOptions()),
-            $output->getVerbosity()
+        $response = $this->bitbucketClient->getPullRequestList(
+            $input->getArgument(self::ARGUMENT_USERNAME),
+            $input->getArgument(self::ARGUMENT_REPO_SLUG),
+            [
+                'page' => (int) $input->getOption('page') ?? 1,
+                'q' => (string) $input->getOption('query'),
+            ]
         );
-        [$headers, $rows] = $this->extractTableFromResponse($input, $response);
+        [$headers, $rows] = $this->extractTableFromResponse(
+            $response,
+            (bool) $input->getOption(self::OPTION_WITH_LINKS)
+        );
 
         $io = new SymfonyStyle($input, $output);
         $io->title('Pull requests');
@@ -80,49 +103,17 @@ class PullRequestListCommand extends Command
     }
 
     /**
-     * @param array $parameters
-     * @param int   $verbosity
+     * @param array $response
+     * @param bool  $withLinks
      *
      * @return array
      */
-    protected function requestPullRequestList(array $parameters, int $verbosity = OutputInterface::VERBOSITY_NORMAL)
-    {
-        $response =  $this->requestGetJson(
-            str_replace(
-                ['{username}', '{repo_slug}'],
-                [
-                    $parameters[self::ARGUMENT_USERNAME],
-                    $parameters[self::ARGUMENT_REPO_SLUG]
-                ],
-                '/2.0/repositories/{username}/{repo_slug}/pullrequests'
-            ),
-            [
-                'query' => [
-                    'q' => $parameters['query'],
-                    'page' => $parameters['page'] ?? 1,
-                ],
-            ]
-        );
-
-        if ($verbosity === OutputInterface::VERBOSITY_VERBOSE) {
-            dump($response);
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param InputInterface $input
-     * @param array          $response
-     *
-     * @return array
-     */
-    private function extractTableFromResponse(InputInterface $input, array $response)
+    private function extractTableFromResponse(array $response, bool $withLinks = false)
     {
         $tableHeaders = ['Id', 'Title', 'Author', 'State'];
         $tableRows = [];
 
-        if ($input->getOption(self::OPTION_WITH_LINKS)) {
+        if ($withLinks) {
             $tableHeaders[] = 'Link';
         }
 
@@ -134,7 +125,7 @@ class PullRequestListCommand extends Command
                 $pullRequest['state'],
             ];
 
-            if ($input->getOption(self::OPTION_WITH_LINKS)) {
+            if ($withLinks) {
                 $row[] = $pullRequest['links']['html']['href'];
             }
 
