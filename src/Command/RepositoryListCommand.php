@@ -70,11 +70,14 @@ class RepositoryListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->bitbucketClient->getRepositoryList($input->getArgument(self::ARGUMENT_USERNAME), [
-            'page' => (int) $input->getOption('page') ?? 1,
-            'role' => (string) $input->getOption('role'),
-            'q' => (string) $input->getOption('query'),
-        ]);
+        $response = $this->bitbucketClient->getRepositoryList(
+            $input->getArgument(self::ARGUMENT_USERNAME),
+            [
+                'page' => (int) $input->getOption('page') ?? 1,
+                'role' => (string) $input->getOption('role'),
+                'q' => (string) $input->getOption('query'),
+            ]
+        );
         [$headers, $rows] = $this->extractTableFromResponse($response);
 
         $io = new SymfonyStyle($input, $output);
