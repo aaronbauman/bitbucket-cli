@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Martiis\BitbucketCli\Client;
 
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\RequestOptions;
 use Webmozart\Json\JsonDecoder;
 
 class GuzzleBitbucketClient implements BitbucketClientInterface
@@ -34,10 +35,10 @@ class GuzzleBitbucketClient implements BitbucketClientInterface
     public function getTeamList(string $role, array $options = [])
     {
         $response = $this->client->request('GET', '/2.0/teams', [
-            'query' => [
+            RequestOptions::QUERY => [
                 'role' => $role,
                 'page' => (int) $options['page'] ?? 1,
-            ]
+            ],
         ]);
 
         return $this->getJsonDecoder()->decode($response->getBody()->getContents());
@@ -52,7 +53,7 @@ class GuzzleBitbucketClient implements BitbucketClientInterface
             'GET',
             str_replace('{owner}', $owner, '/2.0/teams/{owner}/projects/'),
             [
-                'query' => [
+                RequestOptions::QUERY => [
                     'page' => (int) $options['page'] ?? 1,
                 ],
             ]
@@ -70,7 +71,7 @@ class GuzzleBitbucketClient implements BitbucketClientInterface
             'GET',
             str_replace('{username}', $username, '/2.0/repositories/{username}'),
             [
-                'query' => array_replace(
+                RequestOptions::QUERY => array_replace(
                     ['page' => 1],
                     array_diff_key($options, array_flip(['page', 'role', 'q']))
                 ),
@@ -93,7 +94,7 @@ class GuzzleBitbucketClient implements BitbucketClientInterface
                 '/2.0/repositories/{username}/{repo_slug}/pullrequests'
             ),
             [
-                'query' => array_replace(
+                RequestOptions::QUERY => array_replace(
                     ['page' => 1],
                     array_diff_key($options, array_flip(['page', 'q']))
                 ),
