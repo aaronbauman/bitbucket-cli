@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Martiis\BitbucketCli\Command;
 
+use Martiis\BitbucketCli\Client\BitbucketClientInterface;
 use Martiis\BitbucketCli\Command\Traits\ClientAwareTrait;
 use Martiis\BitbucketCli\Command\Traits\CommentFormatterTrait;
 use Martiis\BitbucketCli\Command\Traits\PageAwareCommandTrait;
@@ -19,7 +20,23 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class TeamProjectListCommand extends Command
 {
-    use ClientAwareTrait, CommentFormatterTrait, PageAwareCommandTrait;
+    use CommentFormatterTrait, PageAwareCommandTrait;
+
+    /**
+     * @var BitbucketClientInterface
+     */
+    private $bitbucketClient;
+
+    /**
+     * TeamProjectListCommand constructor.
+     * @param BitbucketClientInterface $bitbucketClient
+     */
+    public function __construct(BitbucketClientInterface $bitbucketClient)
+    {
+        parent::__construct();
+
+        $this->bitbucketClient = $bitbucketClient;
+    }
 
     /**
      * {@inheritdoc}
@@ -44,18 +61,10 @@ class TeamProjectListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->requestGetJson(
-            str_replace(
-                '{owner}',
-                $input->getArgument('owner'),
-                '/2.0/teams/{owner}/projects/'
-            ),
-            [
-                'query' => [
-                    'page' => $input->getOption('page'),
-                ],
-            ]
-        );
+        $response = $this->bitbucketClient->getTeamProjectList($input->getArgument('owner'), [
+            'page' => (int) $input->getOption('page') ?? 1,
+        ]);
+
         $tableRows = [];
         foreach ($response['values'] as $project) {
             $tableRows[] = [
@@ -68,7 +77,6 @@ class TeamProjectListCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->title('Team project list');
         $io->table(['Uuid', 'Name', 'Type'], $tableRows);
-
         $io->comment($this->formatComment($response));
     }
 }

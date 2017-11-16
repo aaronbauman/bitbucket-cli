@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Martiis\BitbucketCli\Command;
 
+use Martiis\BitbucketCli\Client\BitbucketClientInterface;
 use Martiis\BitbucketCli\Command\Traits\ClientAwareTrait;
 use Martiis\BitbucketCli\Command\Traits\CommentFormatterTrait;
 use Martiis\BitbucketCli\Command\Traits\PageAwareCommandTrait;
@@ -21,11 +22,26 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class RepositoryListCommand extends Command
 {
-    use ClientAwareTrait,
-        CommentFormatterTrait,
+    use CommentFormatterTrait,
         PageAwareCommandTrait,
         QueryAwareCommandTrait,
         RoleAwareCommandTrait;
+
+    /**
+     * @var BitbucketClientInterface
+     */
+    private $bitbucketClient;
+
+    /**
+     * RepositoryListCommand constructor.
+     * @param BitbucketClientInterface $bitbucketClient
+     */
+    public function __construct(BitbucketClientInterface $bitbucketClient)
+    {
+        parent::__construct();
+
+        $this->bitbucketClient = $bitbucketClient;
+    }
 
     /**
      * {@inheritdoc}
@@ -53,36 +69,17 @@ class RepositoryListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->requestRepositoryList($input);
+        $response = $this->bitbucketClient->getRepositoryList($input->getArgument('username'), [
+            'page' => (int) $input->getOption('page') ?? 1,
+            'role' => (string) $input->getOption('role'),
+            'q' => (string) $input->getOption('query'),
+        ]);
         [$headers, $rows] = $this->extractTableFromResponse($response);
 
         $io = new SymfonyStyle($input, $output);
         $io->title('Repository list');
         $io->table($headers, $rows);
         $io->comment($this->formatComment($response));
-    }
-
-    /**
-     * @param InputInterface $input
-     *
-     * @return array
-     */
-    protected function requestRepositoryList(InputInterface $input)
-    {
-        return $this->requestGetJson(
-            str_replace(
-                '{username}',
-                $input->getArgument('username'),
-                '/2.0/repositories/{username}'
-            ),
-            [
-                'query' => [
-                    'page' => (int) $input->getOption('page'),
-                    'role' => (string) $input->getOption('role'),
-                    'q' => (string) $input->getOption('query'),
-                ]
-            ]
-        );
     }
 
     /**
