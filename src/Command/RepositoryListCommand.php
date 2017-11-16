@@ -26,6 +26,8 @@ class RepositoryListCommand extends Command
         QueryAwareCommandTrait,
         RoleAwareCommandTrait;
 
+    protected const ARGUMENT_USERNAME = 'username';
+
     /**
      * @var BitbucketClientInterface
      */
@@ -51,7 +53,7 @@ class RepositoryListCommand extends Command
             ->setName('repository:list')
             ->setDescription('List of all repositories owned by the specified account or UUID.')
             ->addArgument(
-                'username',
+                self::ARGUMENT_USERNAME,
                 InputArgument::REQUIRED,
                 'This can either be the username '
                 .'or the UUID of the user, surrounded by curly-braces, for example: {user UUID}.'
@@ -68,7 +70,7 @@ class RepositoryListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->bitbucketClient->getRepositoryList($input->getArgument('username'), [
+        $response = $this->bitbucketClient->getRepositoryList($input->getArgument(self::ARGUMENT_USERNAME), [
             'page' => (int) $input->getOption('page') ?? 1,
             'role' => (string) $input->getOption('role'),
             'q' => (string) $input->getOption('query'),

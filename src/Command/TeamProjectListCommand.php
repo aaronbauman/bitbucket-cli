@@ -21,6 +21,8 @@ class TeamProjectListCommand extends Command
 {
     use CommentFormatterTrait, PageAwareCommandTrait;
 
+    protected const ARGUMENT_OWNER = 'owner';
+
     /**
      * @var BitbucketClientInterface
      */
@@ -46,7 +48,7 @@ class TeamProjectListCommand extends Command
             ->setName('team:project:list')
             ->setDescription('List of projects that belong to the specified team.')
             ->addArgument(
-                'owner',
+                self::ARGUMENT_OWNER,
                 InputArgument::REQUIRED,
                 'The team which owns the project. This can either be the username of the team or the '
                 . 'UUID of the team (surrounded by curly-braces ({})).'
@@ -60,7 +62,7 @@ class TeamProjectListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $response = $this->bitbucketClient->getTeamProjectList($input->getArgument('owner'), [
+        $response = $this->bitbucketClient->getTeamProjectList($input->getArgument(self::ARGUMENT_OWNER), [
             'page' => (int) $input->getOption('page') ?? 1,
         ]);
 

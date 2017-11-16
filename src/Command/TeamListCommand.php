@@ -21,6 +21,8 @@ class TeamListCommand extends Command
 {
     use CommentFormatterTrait, PageAwareCommandTrait;
 
+    protected const ARGUMENT_ROLE = 'role';
+
     /**
      * @var BitbucketClientInterface
      */
@@ -46,7 +48,7 @@ class TeamListCommand extends Command
             ->setName('team:list')
             ->setDescription('Returns all the teams that the authenticated user is associated with.')
             ->addArgument(
-                'role',
+                self::ARGUMENT_ROLE,
                 InputArgument::OPTIONAL,
                 'Filters the teams based on the authenticated user\'s role on each team.',
                 'member'
@@ -61,7 +63,7 @@ class TeamListCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $response = $this->bitbucketClient->getTeamList(
-            $input->getArgument('role'),
+            $input->getArgument(self::ARGUMENT_ROLE),
             ['page' => $input->getOption('page')]
         );
 

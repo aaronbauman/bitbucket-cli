@@ -36,7 +36,7 @@ class PullRequestMergeCommand extends Command
      * PullRequestMergeCommand constructor.
      *
      * @param BitbucketClientInterface $bitbucketClient
-     * @param ClientInterface $client
+     * @param ClientInterface          $httpClient
      */
     public function __construct(BitbucketClientInterface $bitbucketClient, ClientInterface $httpClient)
     {
