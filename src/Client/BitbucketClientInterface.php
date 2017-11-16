@@ -6,6 +6,20 @@ namespace Martiis\BitbucketCli\Client;
 
 interface BitbucketClientInterface
 {
+    public const VERSION = '2.0';
+
+    public const URI_TEAM_LIST = '/{version}/teams';
+    public const URI_TEAM_PROJECT_LIST = '/{version}/teams/{owner}/projects/';
+    public const URI_REPOSITORY_LIST = '/{version}/repositories/{username}';
+    public const URI_PULL_REQUEST_LIST = '/{version}/repositories/{username}/{repo_slug}/pullrequests';
+    public const URI_PULL_REQUEST = '/{version}/repositories/{username}/{repo_slug}/pullrequests/{pull_request_id}';
+
+    public const VARS_TEAM_LIST = ['{version}'];
+    public const VARS_TEAM_PROJECT_LIST = ['{version}', '{owner}'];
+    public const VARS_REPOSITORY_LIST = ['{version}', '{username}'];
+    public const VARS_PULL_REQUEST_LIST = ['{version}', '{username}', '{repo_slug}'];
+    public const VARS_PULL_REQUEST = ['{version}', '{username}', '{repo_slug}', '{pull_request_id}'];
+
     /**
      * @param string $role
      * @param array  $options

@@ -34,12 +34,16 @@ class GuzzleBitbucketClient implements BitbucketClientInterface
      */
     public function getTeamList(string $role, array $options = [])
     {
-        $response = $this->client->request('GET', '/2.0/teams', [
-            RequestOptions::QUERY => [
-                'role' => $role,
-                'page' => (int) $options['page'] ?? 1,
-            ],
-        ]);
+        $response = $this->client->request(
+            'GET',
+            str_replace(self::VARS_TEAM_LIST, [self::VERSION], self::URI_TEAM_LIST),
+            [
+                RequestOptions::QUERY => [
+                    'role' => $role,
+                    'page' => (int) $options['page'] ?? 1,
+                ],
+            ]
+        );
 
         return $this->getJsonDecoder()->decode($response->getBody()->getContents());
     }
@@ -51,7 +55,11 @@ class GuzzleBitbucketClient implements BitbucketClientInterface
     {
         $response = $this->client->request(
             'GET',
-            str_replace('{owner}', $owner, '/2.0/teams/{owner}/projects/'),
+            str_replace(
+                self::VARS_TEAM_PROJECT_LIST,
+                [self::VERSION, $owner],
+                self::URI_TEAM_PROJECT_LIST
+            ),
             [
                 RequestOptions::QUERY => [
                     'page' => (int) $options['page'] ?? 1,
@@ -69,7 +77,11 @@ class GuzzleBitbucketClient implements BitbucketClientInterface
     {
         $response = $this->client->request(
             'GET',
-            str_replace('{username}', $username, '/2.0/repositories/{username}'),
+            str_replace(
+                self::VARS_REPOSITORY_LIST,
+                [self::VERSION, $username],
+                self::URI_REPOSITORY_LIST
+            ),
             [
                 RequestOptions::QUERY => array_replace(
                     ['page' => 1],
@@ -89,9 +101,9 @@ class GuzzleBitbucketClient implements BitbucketClientInterface
         $response =  $this->client->request(
             'GET',
             str_replace(
-                ['{username}', '{repo_slug}'],
-                [$username, $repoSlug],
-                '/2.0/repositories/{username}/{repo_slug}/pullrequests'
+                self::VARS_PULL_REQUEST_LIST,
+                [self::VERSION, $username, $repoSlug],
+                self::URI_PULL_REQUEST_LIST
             ),
             [
                 RequestOptions::QUERY => array_replace(
@@ -112,9 +124,9 @@ class GuzzleBitbucketClient implements BitbucketClientInterface
         $response =  $this->client->request(
             'GET',
             str_replace(
-                ['{username}', '{repo_slug}', '{pull_request_id}'],
-                [$username, $repoSlug, $pullRequestId],
-                '/2.0/repositories/{username}/{repo_slug}/pullrequests/{pull_request_id}'
+                self::VARS_PULL_REQUEST,
+                [self::VERSION, $username, $repoSlug, $pullRequestId],
+                self::URI_PULL_REQUEST
             )
         );
 
