@@ -34,11 +34,11 @@ class PullRequestApproveCommand extends PullRequestMergeCommand
         $response = $this->bitbucketClient->getPullRequest(
             $input->getArgument(self::ARGUMENT_USERNAME),
             $input->getArgument(self::ARGUMENT_REPO_SLUG),
-            $input->getArgument(self::ARGUMENT_PULL_REQUEST_ID)
+            (int) $input->getArgument(self::ARGUMENT_PULL_REQUEST_ID)
         );
 
         $io = new SymfonyStyle($input, $output);
-        $io->comment(sprintf('Approving "<comment>%s</comment>" ..', $response['title']));
+        $io->comment(sprintf('Approving <info>%s</info> - <comment>%s</comment> pull request ..', $response['author']['display_name'] ?? $response['author']['username'], $response['title']));
         $this->httpClient->request('POST', $response['links']['approve']['href']);
         $io->comment('<info>Done</info>');
     }
