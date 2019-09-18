@@ -45,7 +45,11 @@
     },
     "extra": {
         "incenteev-parameters": {
-            "file": "parameters.yml"
+            "file": "parameters.yml",
+            "env-map": {
+              "key": "BITBUCKET_USER",
+              "secret": "BITBUCKET_PASS"
+            }
         }
     },
     "license": "MIT",
